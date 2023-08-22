@@ -1,0 +1,21 @@
+
+<%- include('layout', {body: content}) %>
+
+<% var content = (function() { %>
+    
+    <% if (user) { %> <!-- If user is connected he can create messages -->
+        <form action="" method="POST">
+            <label for="title">Title</label>
+            <input name="title" placeholder="title" type="text" />
+            <label for="content">Content</label>
+            <textarea id="content" name="content" rows="4" cols="50"></textarea>
+            <button>Post</button>
+          </form>        
+          
+          <% } else { %>
+          <p>Only members can create messages</p>
+          <% } %>
+
+
+
+          <% })(); %>

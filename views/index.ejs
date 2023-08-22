@@ -1,0 +1,149 @@
+<%- include('layout', {body: content}) %>
+
+
+<% var content = (function() { %>
+
+  <% if (user) {%>
+    <h1>Welcome <%= user.username %>, here what's new...</h1>
+    <div class="friends">
+      <% if (requests.length > 0) { %>
+        <p>Friends' requests : </p>
+      <% } %>
+    <ul>
+      <% requests.forEach(function(request) { %> <!-- we loop through the friend requests and we can either accept or decline -->
+        <li>
+         <div id="msg"><p><%= request.username %></p> 
+  
+          <form method='POST' action='/accept'>
+            <div class='form-group'>
+  
+              <input id='itemid' class='form-control' type='hidden' name='itemid' required='true' value="<%= request._id %>"/> <!-- the value is here -->
+            </div>
+            <button type='submit'>Accept</button>
+          </form>
+          <form method='POST' action='/decline'>
+            <div class='form-group'>
+  
+              <input id='itemid' class='form-control' type='hidden' name='itemid' required='true' value="<%= request._id %>"/>
+            </div>
+            <button type='submit'>Decline</button>
+          </form>
+
+  
+        </li>
+      <% }); %>
+      <% if (!requests.length) { %>
+        <p>You have no friends request.</p>
+      <% } %>
+    </ul>
+  </div>
+  
+    <% messages_list.forEach(function(message) { %> <!-- All the messages of the friends -->
+      
+       <div id="messages"><p><strong>[<%= message.title %>] :</strong> <%= message.content %> <br>by               <a href="/user/<%= message.author.url %>"><%= message.author.username %></a> 
+       <br> on <%= message.date_formatted %> <br><%= message.likes %> likes</p> 
+
+
+        </div> 
+ 
+
+        <% if (notliked.includes(message._id)) { %> <!-- if it's not already liked, the button appears, if it's already liked, there is no "like" button -->
+
+<div class="buttons">
+        <form method='POST' action='/like'>
+          <div class='form-group'>
+            <input type="hidden" name="fromPage" value="index">
+
+            <input id='itemid' class='form-control' type='hidden' name='itemid' required='true' value="<%= message._id %>"/>
+          </div>
+          <button type='submit'>Like</button>
+        </form>
+        <% } else { %>
+
+        <form method='POST' action='/unlike'>
+          <div class='form-group'>
+            <input type="hidden" name="fromPage" value="index">
+
+            <input id='itemid' class='form-control' type='hidden' name='itemid' required='true' value="<%= message._id %>"/>
+          </div>
+          <button type='submit'>Unlike</button>
+        </form>
+
+        <% } %>
+
+      </div>
+      <br>
+
+      <button class="comment" data-message-id="<%= message._id %>">Comment</button>  <!-- Comment button makes textarea appears -->
+
+    <div class="comm" data-textarea-id="<%= message._id %>">
+                <form action="/comment" method="POST">
+                    <input type="hidden" name="fromPage" value="index">  <!-- if the comment is from the index, redirect to index, see javascript bellow -->
+        
+                  <input id='itemid' class='form-control' type='hidden' name='itemid' required='true' value="<%= message._id %>"/>
+                  <textarea id="comment" name="comment" rows="4" cols="50"></textarea>
+                  <button>Submit</button>
+                </form>     
+              </div>
+        <% if (message.comments.length > 0) { %>
+          <p>Comments :</p>
+          <% } %>
+        <ul>
+          <% message.comments.forEach(function(comment) { %>
+            <li><a href="/user/<%= comment.author.url %>"><%= comment.author.username %></a> : <%= comment.content %> on <%= comment.date_formatted %></li>
+          <% }); %>
+        </ul>
+
+      
+    <% }); %>
+    <% if (user.friends.length > 0 && !messages_list.length) { %>
+      <p>There are no posts.</p>
+    <% } %>
+  
+
+  <% } else { %> <!-- on the index page, if there is no user logged in, you can log in -->
+    <h3>Welcome, please log-in or sign-up</h3>
+    <p><em>For visitors, please use the following credentials : guest/guest</em></p>
+    <p><em style="color: red"><%= message %></em></p>
+    <form action="/log-in" method="POST">
+      <label for="username">Username</label>
+      <input name="username" type="text" />
+      <label for="password">Password</label>
+      <input name="password" type="password" />
+      <button>Log In</button>
+    </form>
+  <%}%>
+
+
+
+
+
+  <% })(); %>
+
+  <script>
+    
+document.addEventListener('DOMContentLoaded', function() { // Wait for the DOM to load
+
+  if (window.location.search.includes('user_not_found=true')) { // see comments for these JS on "user detail.ejs"
+        alert('User not found');
+    }
+
+
+
+    var commentButtons = document.querySelectorAll('.comment');
+
+    commentButtons.forEach(function(btn) {
+        btn.addEventListener('click', function(event) {
+
+            var messageId = event.target.getAttribute('data-message-id');
+            var textareaDiv = document.querySelector('.comm[data-textarea-id="' + messageId + '"]');
+            if (textareaDiv) {
+                textareaDiv.style.display = "block";
+            }
+
+        });
+    });
+});
+
+
+    </script>

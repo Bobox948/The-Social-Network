@@ -1,0 +1,259 @@
+<%- include('layout', {body: content}) %>
+
+<% var content = (function() { %>
+
+    <h1><%= user1.username %></h1>  <!-- Title of the profile -->
+    <img src="<%= user1.image %>" alt="Description de l'image" height="300px" width="200px"> <!-- avatar -->
+
+
+
+    <% if (user1.id !== actual_user.id && friends === false) {%> <!-- if the user visited is not the current user and if he is not already friend with the connected user, we can see the "add friend" button -->
+
+    
+
+      <% if (actual_user.requests.includes(user1.id))    {%>   <!-- if the user visited is in your actual friends requests, you can accept him here in addition to the homepage, the "add friend" button transforms to "Accept" -->
+<div class="buttons">
+        <form method='POST' action='/accept'>
+          <div class='form-group'>
+
+            <input id='itemid' class='form-control' type='hidden' name='itemid' required='true' value="<%= user1._id %>"/> <!-- the value is here -->
+          </div>
+          <button type='submit'>Accept</button>
+        </form>
+        <form method='POST' action='/decline'>
+          <div class='form-group'>
+
+            <input id='itemid' class='form-control' type='hidden' name='itemid' required='true' value="<%= user1._id %>"/> <!-- the value is here -->
+          </div>
+          <button type='submit'>Decline</button>
+        </form>
+      </div>
+        <%} else if (request === false) {%> <!-- if the request has already been sent you don't see the button either -->
+
+        <form method='POST' action='/add'>
+            <div class='form-group'>
+    
+                
+              <input id='itemid' class='form-control' type='hidden' name='itemid' required='true' value="<%= user1._id %>"/>
+            </div>
+            <button type='submit'>Add as a friend</button>
+          </form>
+
+          <%} else if (request === true) {%> <!-- if the request has already been sent you don't see the button either -->
+<p>Pending request</p>
+      <%}%>
+
+      <%}%>
+
+
+
+
+      <% if (friends === true) { %> 
+        <div class="friends">
+
+        <p>Friends : </p>
+
+          <% friends_list.forEach(function(friend) { %> <!-- Looping through friends to show them on the page if you are friends with the user, on we can click on them to see their profile-->
+            <select id="friendsDropdown"> <!-- the friends will be visible on a select menu -->
+              <option value="" disabled selected>--</option>
+
+              <option value="<%= friend.url %>"><%= friend.username %></option> <!-- when you chose one, the value will be the url to see his profile, see the javascript code snippet bellow -->
+
+
+            </select>
+
+
+          
+          <% }); %>
+          <% if (!friends_list.length) { %>
+            <p>No friends</p>
+          <% } %>
+          </div>
+        <% if (messages_list.length > 0) { %> <!-- to see the "Posts" word, you have to have posts -->
+          <p>Posts :</p>
+          <% } %>
+      
+        <% messages_list.forEach(function(message) { %>
+          
+           <div id="messages">
+            <strong>[<%= message.title %>] : </strong> <%= message.content %><br>on <%= message.date_formatted %><br><%= message.likes %> likes
+        </div> 
+
+        <% if (notliked.includes(message._id)) { %> <!-- we see the like button if the message has not been liked yet -->
+
+<div class="buttons">
+          <form method='POST' action='/like'>
+            <div class='form-group'>
+      
+              <input id='itemid' class='form-control' type='hidden' name='itemid' required='true' value="<%= message._id %>"/>
+            </div>
+            <button type='submit'>Like</button>
+          </form>
+          <% } else { %>
+
+            <form method='POST' action='/unlike'>
+              <div class='form-group'>
+        
+                <input id='itemid' class='form-control' type='hidden' name='itemid' required='true' value="<%= message._id %>"/>
+              </div>
+              <button type='submit'>Unlike</button>
+            </form>
+    
+            <% } %>
+          </div>
+          <br>
+
+          <button class="comment" data-message-id="<%= message._id %>">Comment</button>
+
+            <div class="comm" data-textarea-id="<%= message._id %>"> <!-- The textarea section appears only onclick of the "comment" button, see the javascript bellow -->
+                        <form action="/comment" method="POST">
+                
+                          <input id='itemid' class='form-control' type='hidden' name='itemid' required='true' value="<%= message._id %>"/>
+                          <textarea id="comment" name="comment" rows="4" cols="50"></textarea>
+                          <button>Submit</button>
+                        </form>     
+                      </div>
+
+            <br>
+            <% if (message.comments.length > 0) { %> <!-- we only see the words "comments" if there are comments -->
+              <p>Comments :</p>
+              <% } %>
+            <ul>
+              <% message.comments.forEach(function(comment) { %>
+                <li><a href="/user/<%= comment.author.url %>"><%= comment.author.username %></a>: <%= comment.content %> on <%= comment.date_formatted %></li>
+                <% }); %>
+            </ul>
+
+            
+      
+        <% if (!messages_list.length) { %>
+          <p>There are no posts.</p>
+        <% } %>
+  
+        <% }); %>
+        <% } else if (id_str === id) { %> <!-- if the profile is the one of the current logged user, he can update and delete posts -->
+          <div class="friends">
+<p>Friends : </p>
+          
+            
+          <% friends_list.forEach(function(friend) { %> <!-- Looping through friends to show them on the page, on we can click on them to see their profile-->
+            <select id="friendsDropdown">
+              <option value="" disabled selected>--</option>
+
+              <option value="<%= friend.url %>"><%= friend.username %></option>
+
+
+            </select>
+
+            
+            <% }); %>
+            <% if (!friends_list.length) { %>
+              <p>You have no friends</p>
+            <% } %>
+            </div>
+          <a href="/create">Create a new post</a><br><br>
+
+          <% if (messages_list.length > 0) { %>
+          <p>Your posts :</p> <!-- Since it's the actual user's profile, the word is "Your posts" -->
+          <% } %>
+
+
+
+
+    <% messages_list.forEach(function(message) { %>
+                  
+                   <div id="messages"><p><strong>[<%= message.title %>] : </strong><%= message.content %><br> on <%= message.date_formatted %> <br><%= message.likes %> likes </p> 
+                    
+                       
+<div class="buttons"> 
+              <form method='GET' action='/update'> <!-- Since it's the actual user's profile, you see the "update" and "delete" buttons -->
+                <div class='form-group'>
+            
+                  <input id='itemid' class='form-control' type='hidden' name='itemid' required='true' value="<%= message._id %>"/>
+                </div>
+                <button type='submit'>Update</button>
+              </form>
+            
+                <form method='POST' action='/delete'>
+                  <div class='form-group'>
+            
+                    <input id='itemid' class='form-control' type='hidden' name='itemid' required='true' value="<%= message._id %>"/>
+                  </div>
+                  <button type='submit'>Delete</button>
+                </form>
+              </div>
+              <br>
+              <button class="comment" data-message-id="<%= message._id %>">Comment</button>
+
+                <div class="comm" data-textarea-id="<%= message._id %>">
+                            <form action="/comment" method="POST">
+                    
+                              <input id='itemid' class='form-control' type='hidden' name='itemid' required='true' value="<%= message._id %>"/>
+                              <textarea id="comment" name="comment" rows="4" cols="50"></textarea>
+                              <button>Submit</button>
+                            </form>     
+                          </div>  
+              
+            </div> 
+            <br> 
+            <% if (message.comments.length > 0) { %>
+              <p>Comments :</p>
+              <% } %>
+              <ul>
+              <% message.comments.forEach(function(comment) { %>
+                  <li><a href="/user/<%= comment.author.url %>"><%= comment.author.username %></a>: <%= comment.content %> on <%= comment.date_formatted %></li>
+                  <% }); %>
+                </ul>
+             
+                
+              <% }); %>
+
+       
+      <%}%>
+
+
+  
+
+  <% })(); %>
+ 
+
+  <script>
+    
+    document.addEventListener('DOMContentLoaded', function() { // Wait for the DOM to load
+ 
+
+
+
+      var dropdown = document.getElementById('friendsDropdown');
+    
+    dropdown.addEventListener('change', function() {
+        var selectedURL = this.value; // the value of the selected friend in the dropdown menu
+
+        if (selectedURL) {
+            window.location.href = selectedURL; // the redirection part
+        } 
+    });
+
+      if (window.location.search.includes('user_not_found=true')) {
+            alert('User not found'); // if the research does not find the user, alert 
+        }
+    
+    
+    
+        var commentButtons = document.querySelectorAll('.comment');
+    
+        commentButtons.forEach(function(btn) {
+            btn.addEventListener('click', function(event) { // for each "comment" button, it detects which one is clicked and for which to display the textarea
+    
+                var messageId = event.target.getAttribute('data-message-id'); // each data-message-id is unique because of the message._id
+                var textareaDiv = document.querySelector('.comm[data-textarea-id="' + messageId + '"]'); // each textarea also is unique
+                if (textareaDiv) {
+                    textareaDiv.style.display = "block"; // displays from none to block
+                }
+                
+            });
+        });
+    });
+    
+    
+        </script>

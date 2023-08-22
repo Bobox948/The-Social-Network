@@ -1,0 +1,49 @@
+<%- include('layout', {body: content}) %>
+
+<% var content = (function() { %>
+    
+    <% if (user) { %> <!-- If user is connected he can create messages -->
+
+        
+            <% if (dms.length > 0) { %>  
+                <h5>DMs :</h5>
+              <% } %>
+        <% dms.forEach(function(dm) { %> <!-- All the messages of the friends -->
+
+"<%= dm.content %>" by <a href="/user/<%= dm.author.url %>"><%= dm.author.username %></a> on <%= dm.date_formatted %>  <!-- date_formatted for the nice format -->
+
+            <% }) %>
+
+        
+        <% if (user.friends.length === 0 ) { %>
+            <p>You have no friends.</p>
+    
+          <% } else if (user.friends.length > 0 ) { %> 
+
+            <% if (!dms.length) { %>
+                <p>There are no dms.</p>
+              <% } %>
+
+        <form action="/messages" method="POST">
+            <br>
+
+            <label for="destination">To who</label>
+            <select id="destination" name="destination">
+                <% user.friends.forEach(function(friend) { %>
+                    <option value="<%= friend._id %>"><%= friend.username %></option>
+                <% }); %>
+            </select><br>
+            <label for="content">Content</label>
+            <textarea id="content" name="content" rows="4" cols="50"></textarea>
+            <button>Send message</button>
+          </form>   
+          <% } %>
+
+          
+     <% } else { %>
+          <p>Only members can send messages</p>
+    <% } %>
+
+
+
+ <% })(); %>

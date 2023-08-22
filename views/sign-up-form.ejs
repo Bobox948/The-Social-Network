@@ -1,0 +1,25 @@
+<%- include('layout', {body: content}) %>
+
+<% var content = (function() { %>
+
+    <h1>Sign Up</h1>
+    <p><em style="color: red"><%= error %></em></p>
+    <form action="" method="POST" enctype="multipart/form-data">
+      <label for="username">Username</label>
+      <% if (username) { %> <!-- if something is wrong, the username chosen is populated -->
+        <input name="username" placeholder="username" value="<%= username %>", type="text" minlength="5" required/>
+        <% } else { %>
+          <input name="username" placeholder="username" type="text" minlength="5" required />
+          <% } %>
+      <label for="password" >Password</label>
+      <input name="password" type="password" minlength="5"/>
+      <label for="passwordConfirmation">Password Confirmation</label>
+      <input name="passwordConfirmation" type="password" minlength="5" />
+      <input type="file" class="form-control-file" id="image" name="image">
+
+      
+      <button>Sign Up</button>
+    </form>
+    
+    <% })(); %>
+  
