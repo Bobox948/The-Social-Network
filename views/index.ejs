@@ -81,7 +81,7 @@
                     <input type="hidden" name="fromPage" value="index">  <!-- if the comment is from the index, redirect to index, see javascript bellow -->
         
                   <input id='itemid' class='form-control' type='hidden' name='itemid' required='true' value="<%= message._id %>"/>
-                  <textarea id="comment" name="comment" rows="4" cols="50"></textarea>
+                  <textarea id="comment" name="comment" rows="4" cols="40"></textarea>
                   <button>Submit</button>
                 </form>     
               </div>
@@ -106,10 +106,8 @@
     <p><em>For visitors, please use the following credentials : guest/guest</em></p>
     <p><em style="color: red"><%= message %></em></p>
     <form action="/log-in" method="POST">
-      <label for="username">Username</label>
-      <input name="username" type="text" />
-      <label for="password">Password</label>
-      <input name="password" type="password" />
+      <input name="username" type="text" placeholder="username"/>
+      <input name="password" type="password" placeholder="password" />
       <button>Log In</button>
     </form>
   <%}%>
